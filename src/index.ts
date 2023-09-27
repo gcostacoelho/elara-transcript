@@ -5,22 +5,21 @@ import fs from 'fs';
 
 import { Deepgram } from '@deepgram/sdk';
 import dotenv from 'dotenv'
-import { resolve } from 'path';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'uploads/' });
 
 dotenv.config();
 
 app.post('/transcript', async (req, res) => {
     try {
-        const sleep: Promise<number> = new Promise((resolve) => setTimeout(resolve, 2500))
+        const sleep: Promise<number> = new Promise((resolve) => setTimeout(resolve, 2500));
+        const path: string = `./uploads/audio${Date.now()}.mp3`;
 
-        const file = fs.createWriteStream('./uploads/audio.mp3');
-        req.pipe(file);
+        req.pipe(fs.createWriteStream(path));
 
         await sleep;
 
@@ -37,7 +36,7 @@ app.post('/transcript', async (req, res) => {
 
         const deepgram = new Deepgram(deepgramKey);
 
-        const audio = fs.readFileSync('./uploads/audio.mp3');
+        const audio = fs.readFileSync(path);
 
         console.log(audio);
 
@@ -62,7 +61,7 @@ app.post('/transcript', async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json(error)
+        return res.status(500).json(error);
     }
 });
 
